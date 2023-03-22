@@ -20,11 +20,13 @@
 		<result property="articleNO" column="articleNO" />
 		<result property="imageFileName" column="imageFileName" />
 	</resultMap> -->
+<!-- SELECT level, articleno, prrentno, title, content, to_char(writedate, 'YYYY-MM-DD') as writeDate, imagefilename, id  -->
 
+<!-- SELECT level,articleno,prrentno,title,content,witedate,imagefilename,id  -->
 
 	<select id="selectAllArticlesList" resultMap="articleResult">
     <![CDATA[
-	SELECT level,articleno,prrentno,title,content,witedate,imagefilename,id 
+	SELECT level, articleno, prrentno, title, content, TO_CHAR(witedate, 'YYYY-MM-DD') AS writeDate, imagefilename, id
 	from t_board 
 	START WITH prrentno=0 
 	CONNECT BY PRIOR articleno=prrentno 
