@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+   <mapper namespace="mapper.member">
+   <!--기존방법  -->
+ <resultMap type="memberVO" id="memResult1">
+  <result property="id" column="id" />
+        <result property="pwd" column="pwd" />
+        <result property="name" column="name" />
+        <result property="email" column="email" />
+        <result property="joinDate" column="joinDate" />
+  </resultMap> 
+   
+   <!-- hashmap방법 -->
+ <resultMap type="java.util.HashMap" id="memResult2">
+  <result property="id" column="id" />
+        <result property="pwd" column="pwd" />
+        <result property="name" column="name" />
+        <result property="email" column="email" />
+        <result property="joinDate" column="joinDate" />
+   
+   </resultMap>
+   
+   <select id="loginById" resultType="memberVO" parameterType="memberVO">
+    <![CDATA[
+    select * from t_member where id=#{id} and pwd =#{pwd}
+   ]]>
+   </select>
+
+    
+    <!-- t_member를 joinDate를 기준으로 잡아 정렬하여 출력(order by) -->
+  <select id="selectAllMemberList" resultMap="memResult1">
+   <![CDATA[
+    select * from t_member	order by joinDate desc	 	
+   ]]>
+   </select>
+   
+    
+    <select id="selectAllMemberHashMapList" resultMap="memResult2">
+   <![CDATA[
+    select * from t_member	order by joinDate desc	 	
+   ]]>
+   </select> 
+   
+   <!--  DAO에 selectName이라는 메서드를 생성-->
+   <select id="selectName" resultType="String">
+    <![CDATA[
+  SELECT name FROM t_member WHERE id='hihihi'
+   ]]>
+   </select>
+   
+   <!-- hihihi의 비밀번호만 추출 -->
+    <select id="selectPwd" resultType="int">
+    <![CDATA[
+  SELECT pwd FROM t_member WHERE id='hihihi'
+   ]]>
+   </select>
+  
+  
+<!-- http://localhost:8080/pro23/test02/search.jsp 에서 사용  -->
+  <select id="selectMemberById" resultType="memberVO"  parameterType="String" >
+      <![CDATA[
+         select * from t_member
+         where
+         id= to_char(#{id})			
+      ]]>
+	 </select>	
+  
+  <select id="selectMemberByPwd" resultMap="memResult1"  parameterType="int" >
+      <![CDATA[
+         select * from t_member
+         where
+         pwd = to_char(#{pwd})			
+      ]]>
+    </select>
+  
+
+<insert id="insertMember" parameterType="memberVO">
+ <![CDATA[
+insert into t_member(id,pwd,name,email)
+values (#{id},#{pwd},#{name},#{email})
+     ]]>
+</insert>
+
+   <!-- hashmap방법 -->
+<insert id="insertMember2" parameterType="java.util.Map">
+ <![CDATA[
+insert into t_member(id,pwd,name,email)
+values (#{id},#{pwd},#{name},#{email})
+     ]]>
+</insert>
+
+<update id="updateMember" parameterType="memberVO">
+<![CDATA[
+ update t_member
+	     set pwd=#{pwd}, name=#{name}, email=#{email}
+	     where
+	     id=#{id}
+	  ]]>
+</update>
+
+ <delete id="deleteMember"  parameterType="String">
+	<![CDATA[
+	   delete from  t_member
+	   where
+	   id=#{id}
+	]]>      
+  </delete>
+	
+	
+	<!-- 동적 SQL문 -->
+ <!-- <select id="searchMember" parameterType="memberVO" resultMap="memResult1">
+      <![CDATA[
+          select * from t_member
+      ]]>
+      <where>
+         <if test=" name != ''  and  name != null">
+            name=#{name}
+         </if>
+         <if test="email != ''  and email != null ">
+           and email = #{email}
+         </if>
+      </where>
+      order by joinDate desc
+  </select>
+   -->
+   
+   <select id="searchMember" parameterType="memberVO" resultMap="memResult1"> 
+	   <![CDATA[
+         select * from t_member 
+      ]]>
+	  
+       <where>
+		  <choose>
+		      <when test="name != '' and name != null and  email != '' and email != null">
+			     name=#{name} and email=#{email}
+		      </when>
+		      <when test="name != '' and name != null">
+			     name = #{name}
+		      </when>
+		      <when test="email !='' and email != null">
+			    email = #{email}
+		      </when>
+	      </choose>
+       </where>
+       order by joinDate desc
+   </select> 
+
+  
+  <select id="foreachSelect" resultMap="memResult2" parameterType="java.util.Map">
+      <!-- <include refid="a" /> -->
+      <![CDATA[
+        select * from t_member 
+          
+      ]]>
+      
+      where name in
+      <foreach item="item" collection="list" open="(" separator="," close=")" >
+         #{item}
+      </foreach>
+      order by joinDate desc
+   </select>
+   
+   
+     
+   <insert id="foreachInsert"  parameterType="java.util.Map">
+      <foreach item="item"  collection="list"   open="INSERT ALL" separator=" " close="SELECT * FROM DUAL" >
+          INTO  t_member(id, pwd, name, email)
+          VALUES  (#{item.id},
+                    #{item.pwd},
+                    #{item.name},
+                    #{item.email})
+      </foreach>
+   </insert>
+   
+    <!--  like 검색 -->
+   <select id="selectLike" resultMap="memResult1"  parameterType="String" >
+      <![CDATA[
+         select * from t_member
+         where
+         name like '%' || #{name} || '%'		
+      ]]>
+    </select>
+   
+   
+  
+   </mapper>
