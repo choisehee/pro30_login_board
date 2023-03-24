@@ -4,29 +4,38 @@
    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="mapper.board">
+	<!-- <result property="level" column="level" />
+		<result property="articleNO" column="articleNO" />
+		<result property="parentNO" column="parentNO" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="writeDate" column="writeDate" />
+		<result property="imageFileName" column="imageFileName" /> -->
+
 	<!--기존방법 -->
+	<!-- 게시판리스트를 가져오는 부분 -->
 	<resultMap type="articleVO" id="articleResult">
 		<result property="level" column="level" />
 		<result property="articleNO" column="articleNO" />
 		<result property="parentNO" column="parentNO" />
 		<result property="title" column="title" />
 		<result property="content" column="content" />
-		<result property="writeDate" column="writeDate" />
+		<result property="witeDate" column="witeDate" />
 		<result property="imageFileName" column="imageFileName" />
 	</resultMap>
 
-	<!-- <resultMap id="imgResult" type="imageVO">
-		<result property="imageFileNO" column="imageFileNO" />
-		<result property="articleNO" column="articleNO" />
-		<result property="imageFileName" column="imageFileName" />
-	</resultMap> -->
-<!-- SELECT level, articleno, prrentno, title, content, to_char(writedate, 'YYYY-MM-DD') as writeDate, imagefilename, id  -->
+	<!-- <resultMap id="imgResult" type="imageVO"> <result property="imageFileNO" 
+		column="imageFileNO" /> <result property="articleNO" column="articleNO" /> 
+		<result property="imageFileName" column="imageFileName" /> </resultMap> -->
 
-<!-- SELECT level,articleno,prrentno,title,content,witedate,imagefilename,id  -->
+	<!-- 처음 작성한거 SELECT level,articleno,prrentno,title,content,witedate,imagefilename,id -->
+	<!-- 작성일이 안가져와져서 다시 입력한거 SELECT level, articleno, prrentno, title, content, 
+		to_char(writedate, 'YYYY-MM-DD') as writeDate, imagefilename, id -->
+	<!-- 어디에서 못 가져온건지 작성이 안된건지는 알 수 없음 -->
 
 	<select id="selectAllArticlesList" resultMap="articleResult">
     <![CDATA[
-	SELECT level, articleno, prrentno, title, content, TO_CHAR(witedate, 'YYYY-MM-DD') AS writeDate, imagefilename, id
+	SELECT level,articleno,prrentno,title,content,witeDate,imageFileName,id
 	from t_board 
 	START WITH prrentno=0 
 	CONNECT BY PRIOR articleno=prrentno 
@@ -60,6 +69,7 @@
     ]]>
 	</select>
 
+	<!-- 업데이트 -->
 	<update id="updateArticle" parameterType="java.util.Map">
 		update t_board
 		set title=#{title},
@@ -77,7 +87,7 @@
       where articleNO in (
          SELECT articleNO FROM  t_board
          START WITH articleNO = #{articleNO}
-         CONNECT BY PRIOR  articleNO = parentNO )
+         CONNECT BY PRIOR  articleNO = prrentNo )
     ]]>
 	</delete>
 

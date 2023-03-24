@@ -150,14 +150,100 @@ public class BoardControllerImpl implements BoardController{
 		public ModelAndView viewArticle(@RequestParam("articleNO") int articleNO,
 	                                    HttpServletRequest request, HttpServletResponse response) throws Exception{
 			String viewName = (String)request.getAttribute("viewName");
+			System.out.println("현재 뷰네임 선택한 게시글의 이미지 보여주기위한 경로:"+viewName);
 			articleVO=boardService.viewArticle(articleNO);
 			ModelAndView mav = new ModelAndView();
 			mav.setViewName(viewName);
 			mav.addObject("article", articleVO);
+			
 			return mav;
 		}
+		
+		
+		//한 개 이미지 수정 기능
+		  @RequestMapping(value="/board/modArticle.do" ,method = RequestMethod.POST)
+		  @ResponseBody
+		  public ResponseEntity modArticle(MultipartHttpServletRequest multipartRequest,  
+		    HttpServletResponse response) throws Exception{
+		    multipartRequest.setCharacterEncoding("utf-8");
+			Map<String,Object> articleMap = new HashMap<String, Object>();
+			Enumeration enu=multipartRequest.getParameterNames();
+			while(enu.hasMoreElements()){
+				String name=(String)enu.nextElement();
+				String value=multipartRequest.getParameter(name);
+				articleMap.put(name,value);
+			}
+			
+			String imageFileName= upload(multipartRequest);
+			articleMap.put("imageFileName", imageFileName);
+			
+			String articleNO=(String)articleMap.get("articleNO");
+			String message;
+			ResponseEntity resEnt=null;
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.add("Content-Type", "text/html; charset=utf-8");
+		    try {
+		       boardService.modArticle(articleMap);
+		       if(imageFileName!=null && imageFileName.length()!=0) {
+		         File srcFile = new File(ARTICLE_IMAGE_REPO+"\\"+"temp"+"\\"+imageFileName);
+		         File destDir = new File(ARTICLE_IMAGE_REPO+"\\"+articleNO);
+		         FileUtils.moveFileToDirectory(srcFile, destDir, true);
+		         
+		         String originalFileName = (String)articleMap.get("originalFileName");
+		         File oldFile = new File(ARTICLE_IMAGE_REPO+"\\"+articleNO+"\\"+originalFileName);
+		         oldFile.delete();
+		       }	
+		       message = "<script>";
+			   message += " alert('글을 수정했습니다.');";
+			   message += " location.href='"+multipartRequest.getContextPath()+"/board/viewArticle.do?articleNO="+articleNO+"';";
+			   message +=" </script>";
+		       resEnt = new ResponseEntity(message, responseHeaders, HttpStatus.CREATED);
+		    }catch(Exception e) {
+		      File srcFile = new File(ARTICLE_IMAGE_REPO+"\\"+"temp"+"\\"+imageFileName);
+		      srcFile.delete();
+		      message = "<script>";
+			  message += " alert('오류가 발생했습니다.다시 수정해주세요');";
+			  message += " location.href='"+multipartRequest.getContextPath()+"/board/viewArticle.do?articleNO="+articleNO+"';";
+			  message +=" </script>";
+		      resEnt = new ResponseEntity(message, responseHeaders, HttpStatus.CREATED);
+		    }
+		    return resEnt;
+		  }
 	
-	
+		  
+		  //삭제
+		  @Override
+		  @RequestMapping(value="/board/removeArticle.do" ,method = RequestMethod.POST)
+		  @ResponseBody
+		  public ResponseEntity  removeArticle(@RequestParam("articleNO") int articleNO,
+		                              HttpServletRequest request, HttpServletResponse response) throws Exception{
+			response.setContentType("text/html; charset=UTF-8");
+			String message;
+			ResponseEntity resEnt=null;
+			HttpHeaders responseHeaders = new HttpHeaders();
+			responseHeaders.add("Content-Type", "text/html; charset=utf-8");
+			System.out.println(resEnt);
+			try {
+				boardService.removeArticle(articleNO);
+				File destDir = new File(ARTICLE_IMAGE_REPO+"\\"+articleNO);
+				FileUtils.deleteDirectory(destDir);
+				
+				message = "<script>";
+				message += " alert('글을 삭제했습니다.');";
+				message += " location.href='"+request.getContextPath()+"/board/listArticles.do';";
+				message +=" </script>";
+			    resEnt = new ResponseEntity(message, responseHeaders, HttpStatus.CREATED);
+			       
+			}catch(Exception e) {
+				message = "<script>";
+				message += " alert('작업중 오류가 발생했습니다.다시 시도해 주세요.');";
+				message += " location.href='"+request.getContextPath()+"/board/listArticles.do';";
+				message +=" </script>";
+			    resEnt = new ResponseEntity(message, responseHeaders, HttpStatus.CREATED);
+			    e.printStackTrace();
+			}
+			return resEnt;
+		  }  
 	
 	
 

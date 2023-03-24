@@ -22,6 +22,7 @@
    </style>
    <script  src="http://code.jquery.com/jquery-latest.min.js"></script> 
    <script type="text/javascript" >
+   	
      function backToList(obj){
 	    obj.action="${contextPath}/board/listArticles.do";
 	    obj.submit();
@@ -117,8 +118,8 @@
     <textarea rows="20" cols="60"  name="content"  id="i_content"  disabled />${article.content }</textarea>
    </td>  
   </tr>
- <%-- 
- <c:if test="${not empty imageFileList && imageFileList!='null' }">
+
+<%--  <c:if test="${not empty imageFileList && imageFileList!='null' }">
 	  <c:forEach var="item" items="${imageFileList}" varStatus="status" >
 		    <tr>
 			    <td width="150" align="center" bgcolor="#FF9933"  rowspan="2">
@@ -136,7 +137,7 @@
 			 </tr>
 		</c:forEach>
  </c:if>
- 	 --%>    
+    --%>
  	 
   <c:choose> 
 	  <c:when test="${not empty article.imageFileName && article.imageFileName!='null' }">
@@ -156,6 +157,7 @@
 		    </td>
 		  </tr> 
 		 </c:when>
+		 
 		 <c:otherwise>
 		    <tr  id="tr_file_upload" >
 				    <td width="150" align="center" bgcolor="#FF9933"  rowspan="2">
@@ -179,7 +181,7 @@
 	      등록일자
 	   </td>
 	   <td>
-	    <input type=text value="<fmt:formatDate value="${article.writeDate}" />" disabled />
+	    <input type=text value="<fmt:formatDate value="${article.witeDate}" />" disabled />
 	   </td>   
   </tr>
   <tr   id="tr_btn_modify"  align="center"  >
@@ -197,6 +199,7 @@
 	    </c:if>
 	    <input type=button value="리스트로 돌아가기"  onClick="backToList(this.form)">
 	     <input type=button value="답글쓰기"  onClick="fn_reply_form('${contextPath}/board/replyForm.do', ${article.articleNO})">
+	     
    </td>
   </tr>
  </table>

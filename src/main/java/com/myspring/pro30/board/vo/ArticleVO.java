@@ -15,11 +15,11 @@ public class ArticleVO {
 	private String content;
 	private String imageFileName;
 	private String id;
-	private Date  writeDate;
+	private Date  witeDate;
 	
 	
 	public ArticleVO() {
-		System.out.println("ArticleVO »ý¼ºÀÚ");
+		
 	}
 
 	public int getArticleNO() {
@@ -87,12 +87,12 @@ public class ArticleVO {
 		this.id = id;
 	}
 
-	public Date getWriteDate() {
-		return writeDate;
+	public Date getWiteDate() {
+		return witeDate;
 	}
 
-	public void setWriteDate(Date writeDate) {
-		this.writeDate = writeDate;
+	public void setWiteDate(Date witeDate) {
+		this.witeDate = witeDate;
 	}
 
 

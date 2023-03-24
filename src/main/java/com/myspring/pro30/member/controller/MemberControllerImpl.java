@@ -166,16 +166,17 @@ public class MemberControllerImpl implements MemberController {
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ModelAndView mav = new ModelAndView();
 		memberVO = memberService.login(member);
+		
 		if (memberVO != null) {
 			//로그인이 성공했을때
+			
 			HttpSession session = request.getSession();
 			session.setAttribute("member", memberVO);
 			session.setAttribute("isLogOn", true);
 //			mav.setViewName("redirect:/member/listMembers.do");
 			String action=(String)session.getAttribute("action");
-			session.removeAttribute(action);
-			System.out.println("action? "+action);
-			
+			System.out.println("로그인 성공시 액션값 : "+action);
+			session.removeAttribute("action");
 			if(action!=null){
 				mav.setViewName("redirect : "+action);
 			}else {
